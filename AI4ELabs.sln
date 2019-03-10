@@ -13,9 +13,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4E.Storage.Transactions", "src\AI4E.Storage.Transactions\AI4E.Storage.Transactions.csproj", "{A50C13ED-B573-41C7-9E9B-C756C1BA755E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4E.Storage.Transactions.Abstractions", "src\AI4E.Storage.Transactions.Abstractions\AI4E.Storage.Transactions.Abstractions.csproj", "{19FFEBB7-55DB-4014-85C8-210878CFFEA0}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A50C13ED-B573-41C7-9E9B-C756C1BA755E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A50C13ED-B573-41C7-9E9B-C756C1BA755E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A50C13ED-B573-41C7-9E9B-C756C1BA755E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A50C13ED-B573-41C7-9E9B-C756C1BA755E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19FFEBB7-55DB-4014-85C8-210878CFFEA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19FFEBB7-55DB-4014-85C8-210878CFFEA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19FFEBB7-55DB-4014-85C8-210878CFFEA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19FFEBB7-55DB-4014-85C8-210878CFFEA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A50C13ED-B573-41C7-9E9B-C756C1BA755E} = {45C00761-133F-4997-B954-A1AF3B545767}
+		{19FFEBB7-55DB-4014-85C8-210878CFFEA0} = {45C00761-133F-4997-B954-A1AF3B545767}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B3285EF-3147-4B2A-A3D0-845D2361BFF4}

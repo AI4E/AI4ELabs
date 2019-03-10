@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(NetStandardVersion)</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AI4E.Utils" Version="0.2.0-pre19030514" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AI4E.Storage.Transactions.Abstractions\AI4E.Storage.Transactions.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
