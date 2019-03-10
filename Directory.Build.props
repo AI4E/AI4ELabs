@@ -1,0 +1,36 @@
+<Project>
+  <PropertyGroup>
+    <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <LangVersion>latest</LangVersion>
+    <SolutionDir>$(RepositoryRoot)</SolutionDir>
+    <NoWarn>NU5105</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryRootPath>$(RepositoryRoot)\</RepositoryRootPath>
+    <RepositoryBuiltPath>$(RepositoryRootPath)artifacts\</RepositoryBuiltPath>
+    <RootOutputPath>$(RepositoryBuiltPath)bin\</RootOutputPath>
+    <RootIntermediateOutputPath>$(RepositoryBuiltPath)obj\</RootIntermediateOutputPath>
+    <PackageOutputPath>$(RepositoryBuiltPath)nupkg\</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RootOutputPath)' != ''">
+    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(RootOutputPath)$(MSBuildProjectName)\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)$(Configuration)\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RootIntermediateOutputPath)' != ''">
+    <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(RootIntermediateOutputPath)$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <RestoreOutputPath>$(BaseIntermediateOutputPath)</RestoreOutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <NetStandardVersion>netstandard2.0</NetStandardVersion>
+    <NetCoreAppVersion>netcoreapp2.2</NetCoreAppVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>
