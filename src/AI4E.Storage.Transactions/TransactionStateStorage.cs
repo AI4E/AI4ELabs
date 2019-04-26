@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AI4E.Internal;
+using AI4E.Utils;
 using Newtonsoft.Json;
 using static System.Diagnostics.Debug;
 
@@ -13,9 +13,9 @@ namespace AI4E.Storage.Transactions
 {
     public sealed class TransactionStateStorage : ITransactionStateStorage
     {
-        private readonly IFilterableDatabase _database;
+        private readonly IDatabase _database;
 
-        public TransactionStateStorage(IFilterableDatabase database)
+        public TransactionStateStorage(IDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -30,7 +30,7 @@ namespace AI4E.Storage.Transactions
             var data = AsStoredTransaction(transaction);
             var cmpr = AsStoredTransaction(comparand);
 
-            return _database.CompareExchangeAsync(data, cmpr, p => p.Version, cancellation);
+            return _database.CompareExchangeAsync(data, cmpr, (p, q) => (p.Version == q.Version), cancellation);
         }
 
         public Task RemoveAsync(ITransactionState transaction, CancellationToken cancellation = default)
@@ -39,9 +39,26 @@ namespace AI4E.Storage.Transactions
             return _database.RemoveAsync(data, cancellation);
         }
 
-        public ValueTask<long> GetUniqueTransactionIdAsync(CancellationToken cancellation = default)
+        private sealed class NextTransactionId
         {
-            return _database.GetUniqueResourceIdAsync("transaction", cancellation);
+            public string Id { get; } = string.Empty;
+            public long LastId { get; set; }
+        }
+
+        public async ValueTask<long> GetUniqueTransactionIdAsync(CancellationToken cancellation = default)
+        {
+            // TODO: This is not very performant.
+
+            NextTransactionId current, desired;
+
+            do
+            {
+                current = await _database.GetOneAsync<NextTransactionId>(cancellation);
+                desired = new NextTransactionId { LastId = (current?.LastId ?? 0) + 1 };
+            }
+            while (!await _database.CompareExchangeAsync(desired, current, (p, q) => (p.LastId == q.LastId), cancellation));
+
+            return desired.LastId;
         }
 
         public async ValueTask<ITransactionState> GetTransactionAsync(long id, CancellationToken cancellation = default)
@@ -64,7 +81,6 @@ namespace AI4E.Storage.Transactions
 
             return new StoredTransaction(transaction);
         }
-
 
         private static StoredOperation AsStoredOperation(IOperation operation)
         {
@@ -129,7 +145,7 @@ namespace AI4E.Storage.Transactions
                                                        _serializerSettings);
 
                 Entry = CompressionHelper.Zip(json);
-                EntryType = operation.EntryType.AssemblyQualifiedName;
+                EntryType = operation.EntryType.GetUnqualifiedTypeName();
                 ExpectedVersion = operation.ExpectedVersion;
                 OperationType = operation.OperationType;
                 State = operation.State;
@@ -150,7 +166,7 @@ namespace AI4E.Storage.Transactions
 
             public long TransactionId { get; private set; }
 
-            Type IOperation.EntryType => LoadTypeIgnoringVersion(EntryType);
+            Type IOperation.EntryType => TypeLoadHelper.LoadTypeFromUnqualifiedName(EntryType);
 
             object IOperation.Entry
             {
@@ -158,13 +174,8 @@ namespace AI4E.Storage.Transactions
                 {
                     var json = CompressionHelper.Unzip(Entry);
 
-                    return JsonConvert.DeserializeObject(json, LoadTypeIgnoringVersion(EntryType), _serializerSettings);
+                    return JsonConvert.DeserializeObject(json, TypeLoadHelper.LoadTypeFromUnqualifiedName(EntryType), _serializerSettings);
                 }
-            }
-
-            private static Type LoadTypeIgnoringVersion(string assemblyQualifiedName)
-            {
-                return Type.GetType(assemblyQualifiedName, assemblyName => { assemblyName.Version = null; return Assembly.Load(assemblyName); }, null);
             }
         }
     }

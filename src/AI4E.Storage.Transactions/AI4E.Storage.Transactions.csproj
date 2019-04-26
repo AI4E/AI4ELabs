@@ -5,10 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AI4E.Utils" Version="0.2.0-pre19030514" />
+    <Compile Include="..\..\lib\AI4E\src\Common\CompressionHelper.cs" Link="Internal\CompressionHelper.cs" />
+    <Compile Include="..\..\lib\AI4E\src\Common\DataPropertyHelper.cs" Link="Internal\DataPropertyHelper.cs" />
+    <Compile Include="..\..\lib\AI4E\src\Common\IdEqualityComparer.cs" Link="Internal\IdEqualityComparer.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AI4E.Utils" Version="0.2.0-pre19040712" />
+    <PackageReference Include="AI4E.Utils.AsyncEnumerable" Version="0.2.0-pre19040712" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\AI4E\src\AI4E.Storage\AI4E.Storage.csproj" />
     <ProjectReference Include="..\AI4E.Storage.Transactions.Abstractions\AI4E.Storage.Transactions.Abstractions.csproj" />
   </ItemGroup>
 

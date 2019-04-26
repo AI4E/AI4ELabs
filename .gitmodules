@@ -1,0 +1,3 @@
+[submodule "lib/AI4E"]
+	path = lib/AI4E
+	url = https://github.com/AI4E/AI4E.git

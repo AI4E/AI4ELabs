@@ -4,10 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AI4E.Storage.MongoDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace AI4E.Storage.Transactions.StressTest
 {
@@ -73,7 +71,7 @@ namespace AI4E.Storage.Transactions.StressTest
             var watch = new Stopwatch();
             watch.Start();
 
-            while (true)
+            while (count < 100)
             {
                 var completed = await Task.WhenAny(tasks);
 
@@ -93,6 +91,7 @@ namespace AI4E.Storage.Transactions.StressTest
 
             await Console.Out.WriteLineAsync("Waiting for other ops to complete.");
 
+            tasks.Remove(consoleIn);
             await Task.WhenAll(tasks);
 
             {
@@ -192,22 +191,14 @@ namespace AI4E.Storage.Transactions.StressTest
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddStorage().UseMongoDB("AI4E-Transactions-DB", useNativeTransactions: true);
-
-            //services.AddSingleton<IMongoClient>(provider => new MongoClient("mongodb://localhost:27017"));
-            //services.AddSingleton(provider =>
-            //    provider.GetRequiredService<IMongoClient>().GetDatabase("AI4E-Transactions-DB"));
-
-            //services.AddSingleton<IFilterableDatabase, MongoDatabase>();
-
-            //// services.AddSingleton<IFilterableDatabase, InMemoryDatabase>();
-            //services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-            //services.AddSingleton<IEntryStateTransformerFactory, EntryStateTransformerFactory>();
-            //services.AddSingleton<IEntryStateStorageFactory, EntryStateStorageFactory>();
-            //services.AddSingleton<ITransactionStateTransformer, TransactionStateTransformer>();
-            //services.AddSingleton<ITransactionStateStorage, TransactionStateStorage>();
-            //services.AddSingleton<ITransactionManager, TransactionManager>();
-            //services.AddSingleton<ITransactionalDatabase, TransactionalDatabase>();
+            services.AddStorage().UseInMemoryDatabase();
+            services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            services.AddSingleton<IEntryStateTransformerFactory, EntryStateTransformerFactory>();
+            services.AddSingleton<IEntryStateStorageFactory, EntryStateStorageFactory>();
+            services.AddSingleton<ITransactionStateTransformer, TransactionStateTransformer>();
+            services.AddSingleton<ITransactionStateStorage, TransactionStateStorage>();
+            services.AddSingleton<ITransactionManager, TransactionManager>();
+            services.AddSingleton<ITransactionalDatabase, TransactionalDatabase>();
             services.AddTransient(provider => provider.GetRequiredService<ITransactionalDatabase>().CreateScope());
 
             services.AddLogging(builder =>

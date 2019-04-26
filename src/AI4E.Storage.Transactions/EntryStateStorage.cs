@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AI4E.Internal;
 using AI4E.Utils;
-using AI4E.Utils.AsyncEnumerable;
 using static System.Diagnostics.Debug;
 
 namespace AI4E.Storage.Transactions
@@ -15,9 +14,9 @@ namespace AI4E.Storage.Transactions
     public sealed class EntryStateStorage<TId, TData> : IEntryStateStorage<TId, TData>
         where TData : class
     {
-        private readonly IFilterableDatabase _database;
+        private readonly IDatabase _database;
 
-        public EntryStateStorage(IFilterableDatabase database)
+        public EntryStateStorage(IDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -27,7 +26,7 @@ namespace AI4E.Storage.Transactions
 
         public Task<bool> CompareExchangeAsync(IEntryState<TId, TData> entry, IEntryState<TId, TData> comparand, CancellationToken cancellation = default)
         {
-            return _database.CompareExchangeAsync(AsStoredEntry(entry), AsStoredEntry(comparand), p => p.Version, cancellation);
+            return _database.CompareExchangeAsync(AsStoredEntry(entry), AsStoredEntry(comparand), (p, q) => (p.Version == q.Version), cancellation);
         }
 
         public IAsyncEnumerable<IEntryState<TId, TData>> GetEntriesAsync(Expression<Func<IEntryState<TId, TData>, bool>> predicate, CancellationToken cancellation = default)
@@ -188,9 +187,9 @@ namespace AI4E.Storage.Transactions
 
     public sealed class EntryStateStorageFactory : IEntryStateStorageFactory
     {
-        private readonly IFilterableDatabase _dataStore;
+        private readonly IDatabase _dataStore;
 
-        public EntryStateStorageFactory(IFilterableDatabase database)
+        public EntryStateStorageFactory(IDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -218,7 +217,7 @@ namespace AI4E.Storage.Transactions
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
-            var entries = await entryStorage.GetEntriesAsync(DataPropertyHelper.BuildPredicate<TId, IEntryState<TId, TData>>(id), cancellation);
+            var entries = await entryStorage.GetEntriesAsync(DataPropertyHelper.BuildPredicate<TId, IEntryState<TId, TData>>(id), cancellation).ToList();
 
             return entries.FirstOrDefault();
         }
@@ -233,7 +232,7 @@ namespace AI4E.Storage.Transactions
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            var entries = await entryStorage.GetEntriesAsync(predicate, cancellation);
+            var entries = await entryStorage.GetEntriesAsync(predicate, cancellation).ToList();
 
             return entries.FirstOrDefault();
         }
@@ -248,7 +247,7 @@ namespace AI4E.Storage.Transactions
             if (comparand == null)
                 throw new ArgumentNullException(nameof(comparand));
 
-            var entries = await entryStorage.GetEntriesAsync(DataPropertyHelper.BuildPredicate(comparand), cancellation);
+            var entries = await entryStorage.GetEntriesAsync(DataPropertyHelper.BuildPredicate(comparand), cancellation).ToList();
 
             return entries.FirstOrDefault();
         }
